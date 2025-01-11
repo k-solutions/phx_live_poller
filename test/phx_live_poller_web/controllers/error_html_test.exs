@@ -1,5 +1,6 @@
 defmodule PhxLivePollerWeb.ErrorHTMLTest do
-  use PhxLivePollerWeb.ConnCase, async: true
+  # use PhxLivePollerWeb.ConnCase, async: true
+  use ExUnit.Case
 
   # Bring render_to_string/4 for testing custom views
   import Phoenix.Template

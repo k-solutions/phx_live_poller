@@ -1,5 +1,6 @@
 defmodule PhxLivePollerWeb.Router do
   use PhxLivePollerWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -17,6 +18,7 @@ defmodule PhxLivePollerWeb.Router do
   scope "/", PhxLivePollerWeb do
     pipe_through :browser
 
+    live "/live_exam", UserLive.Index 
     get "/", PageController, :home
   end
 

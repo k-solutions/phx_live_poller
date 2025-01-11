@@ -34,6 +34,19 @@ let
       beamDeps = [];
     };
 
+    dialyxir = buildMix rec {
+      name = "dialyxir";
+      version = "1.4.5";
+
+      src = fetchHex {
+        pkg = "dialyxir";
+        version = "${version}";
+        sha256 = "b0fb08bb8107c750db5c0b324fa2df5ceaa0f9307690ee3c1f6ba5b9eb5d35c3";
+      };
+
+      beamDeps = [ erlex ];
+    };
+
     dns_cluster = buildMix rec {
       name = "dns_cluster";
       version = "0.1.3";
@@ -42,6 +55,19 @@ let
         pkg = "dns_cluster";
         version = "${version}";
         sha256 = "46cb7c4a1b3e52c7ad4cbe33ca5079fbde4840dedeafca2baf77996c2da1bc33";
+      };
+
+      beamDeps = [];
+    };
+
+    erlex = buildMix rec {
+      name = "erlex";
+      version = "0.2.7";
+
+      src = fetchHex {
+        pkg = "erlex";
+        version = "${version}";
+        sha256 = "3ed95f79d1a844c3f6bf0cea61e0d5612a42ce56da9c03f01df538685365efb0";
       };
 
       beamDeps = [];

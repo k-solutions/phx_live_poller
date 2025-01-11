@@ -14,7 +14,7 @@ defmodule PhxLivePoller.Application do
       # Start the Finch HTTP client for sending emails
       {Finch, name: PhxLivePoller.Finch},
       # Start a worker by calling: PhxLivePoller.Worker.start_link(arg)
-      # {PhxLivePoller.Worker, arg},
+      {PhxLivePoller.Accounts, {}},
       # Start to serve requests, typically the last entry
       PhxLivePollerWeb.Endpoint
     ]

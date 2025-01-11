@@ -1,5 +1,6 @@
 defmodule PhxLivePollerWeb.ErrorJSONTest do
-  use PhxLivePollerWeb.ConnCase, async: true
+  # use PhxLivePollerWeb.ConnCase, async: true
+  use ExUnit.Case
 
   test "renders 404" do
     assert PhxLivePollerWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
