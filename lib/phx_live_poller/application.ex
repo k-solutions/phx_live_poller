@@ -12,9 +12,11 @@ defmodule PhxLivePoller.Application do
       {DNSCluster, query: Application.get_env(:phx_live_poller, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhxLivePoller.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: PhxLivePoller.Finch},
-      # Start a worker by calling: PhxLivePoller.Worker.start_link(arg)
+      # {Finch, name: PhxLivePoller.Finch},
+      # User acccounts storage and API
       {PhxLivePoller.Accounts, {}},
+      # Poller Storage and API  
+      {PhxLivePoller.Polls, {}},
       # Start to serve requests, typically the last entry
       PhxLivePollerWeb.Endpoint
     ]
