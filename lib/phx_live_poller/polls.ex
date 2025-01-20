@@ -23,7 +23,7 @@ defmodule PhxLivePoller.Polls do
   # ETS table names
   @polls_tab :polls_tab
   @votes_tab :votes_tab
-  @poll_not_found "Poll not found" 
+  @poll_not_found "Poll not found"
 
   @type username() :: String.t()
   @type poll_id() :: integer()
@@ -43,6 +43,14 @@ defmodule PhxLivePoller.Polls do
   @spec create_poll(String.t()) :: {:ok, Poll.t()}
   def create_poll(question) do
     GenServer.call(__MODULE__, {:create_poll, question})
+  end
+
+  @doc """
+  Creates a new poll with the given question.
+  """
+  @spec get_poll(integer()) :: {:ok, Poll.t()} | {:error, String.t()}
+  def get_poll(poll_id) do
+    GenServer.call(__MODULE__, {:get_poll, poll_id})
   end
 
   @doc """
@@ -96,23 +104,39 @@ defmodule PhxLivePoller.Polls do
   # TODO: Check if poll is not exists before creating it 
   @impl true
   def handle_call({:create_poll, question}, _from, _state) do
-    case :ets.match(@polls_tab, {:"_", question, :"_", :"_"}) do
-      [_] -> {:reply, {:error, "Poll already exists."}, []}
-      []  ->  
-        case Poll.new(question) do 
+    case :ets.match(@polls_tab, {:_, question, :_, :_}) do
+      [_] ->
+        {:reply, {:error, "Poll already exists."}, []}
+
+      [] ->
+        case Poll.new(question) do
           {:ok, poll} ->
-            poll_tpl = poll |> Poll.to_tuple() 
+            poll_tpl = poll |> Poll.to_tuple()
             @polls_tab |> :ets.insert(poll_tpl)
             broadcast()
             {:reply, {:ok, poll}, []}
-          {:error, error} -> {:reply, {:error, error} ,[]}
+
+          {:error, error} ->
+            {:reply, {:error, error}, []}
         end
     end
   end
 
   @impl true
+  def handle_call({:get_poll, poll_id}, _from, _state) do
+    case :ets.lookup(@polls_tab, poll_id) do
+      [] ->
+        {:reply, {:error, "Poll not found"}, []}
+
+      [poll_tpl] ->
+        {_, poll} = from_tpl(poll_tpl)
+        {:reply, {:ok, poll}, []}
+    end
+  end
+
+  @impl true
   def handle_call(:list_polls, _from, _state) do
-    polls = :ets.tab2list(@polls_tab) 
+    polls = :ets.tab2list(@polls_tab)
     {:reply, Enum.into(polls, %{}, &from_tpl(&1)), []}
   end
 
@@ -128,35 +152,39 @@ defmodule PhxLivePoller.Polls do
 
   @impl true
   def handle_call({:vote, _username, _poll_id, invalid_choice}, _from, _state) do
-    {:reply, {:error, "Invalid vote choice: #{inspect(invalid_choice)}. Must be :yes or :no."}, []}
+    {:reply, {:error, "Invalid vote choice: #{inspect(invalid_choice)}. Must be :yes or :no."},
+     []}
   end
 
+  # NOTE: update_counter raises ArgumentError on key not found
   defp process_vote(username, poll_id, choice) do
     case :ets.lookup(@votes_tab, username) do
       [{^username, voted_polls}] ->
-        if voted_polls |> Enum.member?(poll_id) do 
+        if voted_polls |> Enum.member?(poll_id) do
           {:reply, {:error, "User has already voted in this poll"}, []}
         else
-          with(    
-            true <- :ets.update_counter(@polls_tab, poll_id, {get_pos(choice), 1}), 
-            true <- :ets.update_element(@votes_tab, username, {2, [poll_id | voted_polls]})) do      
+          with(
+            true <- :ets.update_counter(@polls_tab, poll_id, {get_pos(choice), 1}),
+            true <- :ets.update_element(@votes_tab, username, {2, [poll_id | voted_polls]})
+          ) do
             broadcast()
             {:reply, :ok, []}
           else
-            _  -> {:reply, {:error, @poll_not_found}, []}  
+            _ -> {:reply, {:error, @poll_not_found}, []}
           end
-        end     
+        end
 
-      [] -> # first user vote  
-        if :ets.update_counter(@polls_tab, poll_id, {get_pos(choice), 1}) do 
+      # first user vote  
+      [] ->
+        if :ets.update_counter(@polls_tab, poll_id, {get_pos(choice), 1}) do
           :ets.insert(@votes_tab, {username, [poll_id]})
           broadcast()
           {:reply, :ok, []}
-        else 
+        else
           {:reply, {:error, @poll_not_found}, []}
         end
     end
-  rescue # NOTE: update_counter raises ArgumentError on key not found
+  rescue
     _ -> {:reply, {:error, @poll_not_found}, []}
   end
 
@@ -164,12 +192,13 @@ defmodule PhxLivePoller.Polls do
   defp get_pos(_), do: 4
 
   defp from_tpl(poll_tpl) when is_tuple(poll_tpl) do
-    poll = Poll.from_tuple(poll_tpl) 
-    {poll.id, poll} 
+    poll = Poll.from_tuple(poll_tpl)
+    {poll.id, poll}
   end
 
   defp broadcast do
     polls = :ets.tab2list(@polls_tab)
+
     Phoenix.PubSub.broadcast(
       PhxLivePoller.PubSub,
       "polls",

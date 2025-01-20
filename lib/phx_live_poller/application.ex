@@ -18,7 +18,8 @@ defmodule PhxLivePoller.Application do
       # Poller Storage and API  
       {PhxLivePoller.Polls, {}},
       # Start to serve requests, typically the last entry
-      PhxLivePollerWeb.Endpoint
+      PhxLivePollerWeb.Endpoint,
+      PhxLivePoller.Presence
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

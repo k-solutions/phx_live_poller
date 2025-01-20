@@ -7,6 +7,17 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+# Design 
+
+We have just Application supervisor and we start all LiveView processes under it, as well as a Account GenSrever ment to hold logged users (as of lack of time the login functionality is not implemented and therefore this GenServer is not currently used)
+I also was not able to set tests for the LiveView and it's components.
+All Polls are stored in 2 named ETS tabales:
+ - polls_tab for holding polls with it's votings
+ NOTE: polls are stored info is tored as tuple to be able to use :ets.update_counter opperation on it
+ - vote_tab is holding a list of users and a list of poll_ids they have been voted on    
+
+Currently all Users are kept only in Phoenix.Presence only I was also not able to integrate UserList live component into the current UI. 
+
 # Requrments
 The application should allow users to create new polls, vote in polls, and see real-time updates of the poll results.
 The solution should not use any external dependencies, such as a database or disk storage, and should instead store all needed data in application memory. 

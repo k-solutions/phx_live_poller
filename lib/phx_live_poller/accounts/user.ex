@@ -27,7 +27,9 @@ defmodule PhxLivePoller.Accounts.User do
   Creates a new user struct with the given name and email.
   """
   @spec new(String.t(), String.t()) :: {:ok, t()} | {:error, String.t()}
-  def new(name, email) when name == "" or email == "", do: {:error, %UserError{reason: :empty_data} |> UserError.message()}
+  def new(name, email) when name == "" or email == "",
+    do: {:error, %UserError{reason: :empty_data} |> UserError.message()}
+
   def new(name, email) do
     if valid_email?(email) do
       {:ok, %__MODULE__{name: name, email: email}}

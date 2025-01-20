@@ -1,8 +1,8 @@
 defmodule PhxLivePoller.AccountsTest do
-#  # use PhxLivePoller.DataCase
-#  use ExUnit.Case 
+  #  # use PhxLivePoller.DataCase
+  #  use ExUnit.Case 
   #
-#  doctest PhxLivePoller.Accounts
+  #  doctest PhxLivePoller.Accounts
   use ExUnit.Case, async: true
 
   alias PhxLivePoller.Accounts
@@ -16,12 +16,15 @@ defmodule PhxLivePoller.AccountsTest do
 
   describe "registering a new user" do
     test "returns an error if email is invalid" do
-      assert Accounts.register_user("Charlie", "invalid-email") == {:error, "Bad user email value: invalid-email"}
+      assert Accounts.register_user("Charlie", "invalid-email") ==
+               {:error, "Bad user email value: invalid-email"}
     end
 
     test "returns an error if email is already taken" do
       Accounts.register_user("Alice", "alice@example.com")
-      assert Accounts.register_user("Bob", "alice@example.com") == {:error, "User: alice@example.com already exists"}
+
+      assert Accounts.register_user("Bob", "alice@example.com") ==
+               {:error, "User: alice@example.com already exists"}
     end
   end
 

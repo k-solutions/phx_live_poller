@@ -18,14 +18,8 @@ defmodule PhxLivePollerWeb.Router do
   scope "/", PhxLivePollerWeb do
     pipe_through :browser
 
-    live "/live_exam", UserLive.Index 
-    get "/", PageController, :home
+    live "/", PollLive
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", PhxLivePollerWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:phx_live_poller, :dev_routes) do

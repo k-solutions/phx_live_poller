@@ -1,7 +1,7 @@
 defmodule PhxLivePoller.Accounts do
   @moduledoc """
   Manages user account registration and data in memory using a GenServer.
-  
+
   ## Examples
       iex> PhxLivePoller.Accounts.register_user("Alice", "alice@example.com")
       :ok
@@ -26,6 +26,7 @@ defmodule PhxLivePoller.Accounts do
   """
 
   use GenServer
+
   alias PhxLivePoller.Accounts.{User, UserError}
 
   @type t() :: %{users: %{String.t() => User.t()}}
@@ -81,8 +82,10 @@ defmodule PhxLivePoller.Accounts do
   @impl true
   def handle_call({:get_user, email}, _from, %{users: users} = state) do
     user = Map.get(users, email)
+
     if is_nil(user) do
-      {:reply, {:error, %UserError{reason: :not_exists, status: email} |> UserError.message()}, state}
+      {:reply, {:error, %UserError{reason: :not_exists, status: email} |> UserError.message()},
+       state}
     else
       {:reply, {:ok, user}, %{state | users: users}}
     end
@@ -95,7 +98,7 @@ defmodule PhxLivePoller.Accounts do
     else
       case User.new(name, email) do
         {:ok, user} ->
-          updated_users = Map.put(users, user.email, user) 
+          updated_users = Map.put(users, user.email, user)
           {:reply, {:ok, user}, %{state | users: updated_users}}
 
         {:error, reason} ->
